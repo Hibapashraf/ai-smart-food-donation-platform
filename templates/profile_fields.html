@@ -1,0 +1,100 @@
+{# Shared organization fields. value() prioritizes submitted values after validation. #}
+{% macro value(key, default='') %}{{ request.form.get(key, profile|attr(key) if profile and profile|attr(key) is not none else default) }}{% endmacro %}
+<div class="form-grid">
+    <div class="form-field full-width">
+        <label for="organization">Organization / business name <span>*</span></label><input id="organization"
+       name="organization"
+       value="{{ value('organization') }}"
+       maxlength="160"
+       placeholder="Your organization or your name"
+       required>
+    </div>
+    <div class="form-field full-width">
+        <label for="phone">Contact number <span>*</span></label><input id="phone"
+       name="phone"
+       type="tel"
+       value="{{ value('phone') }}"
+       maxlength="40"
+       placeholder="+91 98765 43210"
+       required>
+    </div>
+    <div class="form-field full-width">
+        <label for="location">Location / address <span>*</span></label><input id="location"
+       name="location"
+       value="{{ value('location') }}"
+       maxlength="255"
+       placeholder="Street, neighborhood, city"
+       required>
+    </div>
+    <div class="form-field">
+        <label for="latitude">Latitude <span>*</span></label><input id="latitude"
+       name="latitude"
+       type="number"
+       step="any"
+       min="-90"
+       max="90"
+       value="{{ value('latitude') }}"
+       placeholder="12.9784"
+       required>
+    </div>
+    <div class="form-field">
+        <label for="longitude">Longitude <span>*</span></label><input id="longitude"
+       name="longitude"
+       type="number"
+       step="any"
+       min="-180"
+       max="180"
+       value="{{ value('longitude') }}"
+       placeholder="77.6408"
+       required>
+    </div>
+    <div class="form-field full-width">
+        <button type="button" class="btn btn-outline geo-button" data-geolocate>{{ icon("pin") }} Use my location</button><small>Coordinates help us find local matches. Enter manually or use your device location.</small><span class="geo-message" role="status"></span>
+    </div>
+</div>
+<div data-charity-fields
+     {% if not profile or g.user.role != 'charity' %}hidden{% endif %}>
+    <div class="form-section" style="padding-top:22px">
+        <h3>Community requirements</h3>
+        <div class="form-grid">
+            <div class="form-field full-width"><label>Food categories needed <span>*</span></label><div class="checkbox-grid">{% set selected_categories = request.form.getlist('categories') if request.method == 'POST' else (profile.categories.split(',') if profile and profile.categories is defined else []) %}{% for c in categories %}<label class="checkbox-label"><input type="checkbox"
+       name="categories"
+       value="{{ c }}"
+       {{ 'checked' if c in selected_categories }}> {{ c }}</label>{% endfor %}</div></div>
+            <div class="form-field">
+                <label for="required_quantity">Required quantity <span>*</span></label><input id="required_quantity"
+       name="required_quantity"
+       type="number"
+       min="0.01"
+       max="100000"
+       step="0.01"
+       value="{{ value('required_quantity', 30) }}"
+       data-required="true">
+            </div>
+            <div class="form-field"><label for="unit">Unit <span>*</span></label><select name="unit" id="unit">{% for u in units %}<option {{ 'selected' if value('unit', 'kg')|trim == u }}>{{ u }}</option>{% endfor %}</select></div>
+            <div class="form-field full-width">
+                <label for="max_distance">Collection radius (km) <span>*</span></label><input id="max_distance"
+       name="max_distance"
+       type="number"
+       min="1"
+       max="500"
+       step="1"
+       value="{{ value('max_distance', 30) }}"
+       data-required="true">
+            </div>
+            <div class="form-field full-width">
+                <label class="checkbox-label">
+                    <input type="checkbox"
+                           name="vegetarian_only"
+                           {{ 'checked' if (request.form.get("vegetarian_only") if request.method == 'POST' else profile and profile.vegetarian_only) }}> We accept vegetarian food only
+                </label>
+            </div>
+            <div class="form-field full-width">
+                <label for="description">About your organization</label><textarea name="description"
+          id="description"
+          maxlength="1000"
+          placeholder="A few words about the community you serve...">{{ value('description') }}</textarea>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,66 @@
+{% extends "base.html" %}{% from 'components.html' import icon, csrf, progress with context %}{% block title %}{{ donation.name }} · FoodConnect AI{% endblock %}
+{% block content %}<section class="container page-body"><div class="detail-breadcrumb"><a href="{{ url_for('main.find_food') }}">Available food</a><span>/</span><span>Donation #{{ '%04d'|format(donation.id) }}</span></div><div class="detail-layout"><div><div class="detail-photo"><img src="{{ url_for('static', filename='images/'+donation.image) }}"
+     alt="{{ donation.category }} category illustration"><span class="tag category-tag">{{ icon("leaf") }} {{ donation.category }}</span>{% if donation.urgency == "Urgent" %}<span class="tag urgent-tag">{{ icon("clock") }} Urgent pickup</span>{% endif %}</div><small class="field-note">Illustrative category image. Confirm actual food details with the donor.</small>
+<div class="detail-header">
+    <span class="eyebrow">SHARED BY {{ donation.donor.organization|upper }}</span>
+    <h1>{{ donation.name }}</h1>
+    <p class="location-line">{{ icon("pin") }} {{ donation.location }}</p>
+</div>
+<div class="detail-facts">
+    <div class="detail-fact"><small>Available quantity</small><strong>{{ '%g'|format(donation.quantity) }} {{ donation.unit }}</strong></div>
+    <div class="detail-fact"><small>Food condition</small><strong>{{ donation.condition }}</strong></div>
+    <div class="detail-fact"><small>Dietary type</small><strong>{{ 'Vegetarian' if donation.vegetarian else 'Non-vegetarian' }}</strong></div>
+</div>
+<div class="detail-info">
+    <h3>A little more about this food</h3>
+    <p class="detail-note">{{ donation.notes or 'No additional notes. Please coordinate food handling and allergen information with the donor.' }}</p>
+    <dl>
+        <dt>Prepared / packed at</dt>
+        <dd>
+            {{ donation.prepared_at.strftime("%d %b %Y, %H:%M") }} UTC
+        </dd>
+        <dt>Expires at</dt>
+        <dd>
+            {{ donation.expires_at.strftime("%d %b %Y, %H:%M") }} UTC
+        </dd>
+        <dt>Pickup priority</dt>
+        <dd>
+            {{ donation.urgency }}
+        </dd>
+        <dt>Time remaining</dt>
+        <dd>
+            {{ 'Expired' if donation.expired else donation.hours_left|string + ' hours' }}
+        </dd>
+    </dl>
+</div>
+<div class="detail-info"><h3>{{ icon("pin") }} Pickup location</h3><p>{{ donation.location }}</p><div class="map-fallback" id="map-fallback">{{ icon("pin") }}<strong>{{ donation.location }}</strong><span>{{ '%.5f'|format(donation.latitude) }}, {{ '%.5f'|format(donation.longitude) }}</span><span>Coordinate preview · distances calculated with Haversine</span></div>{% if config.GOOGLE_MAPS_API_KEY %}<div class="map-canvas"
+     id="google-map"
+     data-lat="{{ donation.latitude }}"
+     data-lng="{{ donation.longitude }}"
+     hidden></div>{% endif %}{% if allowed_contact %}<div class="hint-card"><strong>Donor contact</strong>{{ donation.contact }}{% if donation.accepted_charity %}<br>Collecting organization: {{ donation.accepted_charity.organization }} · {{ donation.accepted_charity.phone }}{% endif %}</div>{% else %}<p class="field-note">{{ icon("shield") }} Contact details are shared after a charity accepts the donation.</p>{% endif %}</div>
+{% if own or allowed_contact %}<div class="detail-info"><h3>Donation activity</h3><ul class="history-list">{% for entry in donation.history %}<li><span>{{ icon("check") }} {{ entry.status }}</span><span>{{ entry.created_at.strftime("%d %b, %H:%M") }} UTC</span></li>{% endfor %}</ul></div>{% endif %}</div>
+<aside>
+    <div class="status-panel">
+        <div class="heading-row">
+            <h3>Every meal has a journey.</h3>
+            <span class="status-badge status-{{ donation.status }}">{{ donation.status }}</span>
+        </div>
+        {{ progress(donation) }}
+        {% if donation.status == "Delivered" %}<div class="alert alert-success">{{ icon("heart") }} This food has reached its community. Thank you!</div>{% elif donation.expired and donation.status != "Collected" %}<div class="alert alert-error">{{ icon("clock") }} The collection window has ended. This food cannot be accepted or collected.</div>{% elif g.user and g.user.role == "charity" and donation.accepted_charity_id == g.user.charity.id or g.user and g.user.role == "admin" %}{% if donation.status in ["Accepted","Collected"] %}<p>{{ 'Coordinate pickup with the donor, then confirm collection.' if donation.status == 'Accepted' else 'Confirm delivery once the food has reached your organization.' }}</p><form method="post"
+      action="{{ url_for('donations.update_status', donation_id=donation.id) }}">{{ csrf() }}<input type="hidden"
+       name="status"
+       value="{{ 'Collected' if donation.status == 'Accepted' else 'Delivered' }}"><button class="btn btn-primary">{{ icon("truck") }} Mark as {{ 'collected' if donation.status == 'Accepted' else 'delivered' }}</button></form>{% else %}<p>Open a donation that has been accepted to manage collection and delivery.</p>{% endif %}
+    {% elif g.user and g.user.role == "charity" and donation.status in ["Available","Matched"] %}{% if live_score and donation.donor.user.active %}<p>This donation matches your requirements. Accept it to coordinate pickup.</p><div class="action-pair"><form method="post"
+      action="{{ url_for('donations.respond', donation_id=donation.id) }}">{{ csrf() }}<input type="hidden" name="action" value="accept"><button class="btn btn-primary">{{ icon("check") }} Accept food</button></form><form method="post"
+      action="{{ url_for('donations.respond', donation_id=donation.id) }}">{{ csrf() }}<input type="hidden" name="action" value="reject"><button class="btn btn-outline">Not this time</button></form></div>{% if my_match and my_match.response == "Rejected" %}<p>You previously dismissed this donation. You can still accept it while available.</p>{% endif %}{% else %}<p>This food is outside your current category, dietary, distance, or safe pickup requirements.</p><a class="btn btn-outline" href="{{ url_for('auth.profile') }}">Review your requirements</a>{% endif %}
+    {% elif own %}<p>{{ 'We’re looking for the right connection. Nearby charities can accept your donation from their dashboard.' if donation.status in ['Available','Matched'] else 'Your food is on its way to ' + donation.accepted_charity.organization + '. Follow the progress here.' }}</p>{% elif donation.status in ["Accepted","Collected"] %}<p>This donation has already been accepted by an organization.</p><a class="btn btn-outline" href="{{ url_for('main.find_food') }}">Explore other donations</a>{% else %}<p>Join as a charity or food bank to accept food for your community.</p><a class="btn btn-primary" href="{{ url_for('auth.login') }}">Log in to connect {{ icon("arrow") }}</a>{% endif %}</div>
+{% if own or g.user and g.user.role == "charity" %}<div class="match-panel"><h3>{{ icon("spark") }} {{ 'Your match, explained.' if g.user.role == 'charity' else 'Thoughtfully matched.' }}</h3><p>Explainable recommendations. Real community needs.</p>{% if g.user.role == "charity" and live_score %}<div class="recommendation"><div class="recommendation-heading"><h4>{{ g.user.charity.organization }}</h4><span class="score-pill">{{ live_score.score|round|int }}<small>%</small></span></div><p>{{ live_score.explanation }}</p></div>{% elif own %}{% for charity, result in recommendations %}<div class="recommendation">{% if loop.first %}<span class="best-match">✦ BEST MATCH</span>{% endif %}<div class="recommendation-heading"><h4>{{ charity.organization }}</h4><span class="score-pill">{{ result.score|round|int }}<small>%</small></span></div><p>{{ icon("pin") }} {{ result.distance }} km away · Needs {{ '%g'|format(charity.required_quantity) }} {{ charity.unit }}</p><details {{ 'open' if loop.first }}><summary>Why this organization?</summary><p>{{ result.explanation }}</p></details></div>{% else %}<p>No current matches meet the collection requirements. Available food stays visible for charities to discover.</p>{% endfor %}{% else %}<p>This donation is not currently a suitable match.</p>{% endif %}<div class="hint-card"><strong>A recommendation, not a guarantee.</strong>Scores are recalculated using current requirements and time to expiry. Distances are straight-line estimates, not driving routes.</div></div>{% endif %}
+<div class="hint-card"><strong>{{ icon("shield") }} Share safely.</strong>Confirm allergens, storage, and safe handling before collection. Don’t collect or distribute food that is no longer safe to eat.</div></aside></div></section>{% endblock %}
+{% block scripts %}
+    {% if config.GOOGLE_MAPS_API_KEY %}
+        <script>window.initFoodMap=function(){const el=document.getElementById('google-map');try{el.hidden=false;const center={lat:Number(el.dataset.lat),lng:Number(el.dataset.lng)};const map=new google.maps.Map(el,{zoom:14,center:center});new google.maps.Marker({position:center,map:map});document.getElementById('map-fallback').hidden=true;}catch(e){el.hidden=true;document.getElementById('map-fallback').hidden=false;}};window.gm_authFailure=function(){document.getElementById('google-map').hidden=true;document.getElementById('map-fallback').hidden=false;};</script>
+        <script src="https://maps.googleapis.com/maps/api/js?key={{ config.GOOGLE_MAPS_API_KEY|urlencode }}&callback=initFoodMap"
+                async
+                defer></script>
+    {% endif %}
+{% endblock %}

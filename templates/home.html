@@ -1,0 +1,110 @@
+{% extends "base.html" %}{% from 'components.html' import icon, food_card with context %}
+{% block content %}
+    <section class="hero">
+        <div class="container hero-grid">
+            <div class="hero-copy">
+                <div class="eyebrow-pill"><span></span> A LITTLE SHARING. A BIG DIFFERENCE.</div>
+                <h1>
+                    Turn Surplus
+                    <br>
+                    Food Into <span class="hope-word">Hope<svg viewBox="0 0 240 15" aria-hidden="true">
+                    <path d="M4 10Q112-4 235 7M20 14Q128 3 217 11" />
+                    </svg>
+                    </span>
+                </h1>
+                <p>Good food deserves a plate, not a landfill. Connect your surplus with nearby charities and help nourish a community — one meal at a time.</p>
+                <div class="hero-actions"><a class="btn btn-primary btn-large"
+   href="{{ url_for('donations.create') }}">{{ icon("heart") }} Donate Food {{ icon("arrow") }}</a><a class="btn btn-white btn-large"
+   href="{{ url_for('main.charities') }}">{{ icon("search") }} Find a Charity</a></div>
+                <div class="hero-social">
+                    <div class="avatar-stack">
+                        <img src="{{ url_for('static', filename='images/avatar1.svg') }}"
+                             alt="Community member"><img src="{{ url_for('static', filename='images/avatar2.svg') }}"
+     alt="Community member"><img src="{{ url_for('static', filename='images/avatar3.svg') }}"
+     alt="Community member"><span>+{{ stats.organizations }}</span>
+                    </div>
+                    <div><strong>Small acts. Real impact.</strong><span>Join a growing community of changemakers</span></div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-image-wrap">
+                    <img class="hero-photo"
+                         src="{{ url_for('static', filename='images/hero.jpg') }}"
+                         alt="A box of fresh vegetables ready to be shared with the community">
+                    <div class="hero-photo-caption">
+                        <span>{{ icon("heart") }}</span>
+                        <div>More than a donation.<strong>A fresh start for someone.</strong></div>
+                    </div>
+                </div>
+                <div class="floating-match">
+                    <span class="match-icon">{{ icon("spark") }}</span>
+                    <div>
+                        <strong>Good food. Right place.</strong>
+                        <p>Smarter connections, powered by AI</p>
+                    </div>
+                    <span class="match-check">{{ icon("check") }}</span>
+                </div>
+                <div class="floating-impact">
+                    <span class="impact-icon">{{ icon("leaf") }}</span>
+                    <div>
+                        <strong>{{ stats.distributed }} <small>kg</small></strong>
+                        <p>Food saved. Hope shared.</p>
+                    </div>
+                    <svg viewBox="0 0 65 35" class="mini-trend">
+                        <path d="m2 30 14-9 10 4 15-16 8 4L62 2" />
+                    </svg>
+                </div>
+                <span class="decor-spark">✳</span><span class="hero-dots" aria-hidden="true"></span>
+            </div>
+        </div>
+        <div class="container impact-strip">
+            <div class="impact-intro"><span>TOGETHER, WE’RE</span><strong>Making every meal count.</strong></div>
+            <div class="impact-stat">
+                <span class="stat-icon">{{ icon("box") }}</span>
+                <div><strong>{{ stats.donations }}<span>+</span></strong><small>Food donations</small></div>
+            </div>
+            <div class="impact-stat">
+                <span class="stat-icon">{{ icon("users") }}</span>
+                <div><strong>{{ stats.organizations }}<span>+</span></strong><small>Organizations connected</small></div>
+            </div>
+            <div class="impact-stat">
+                <span class="stat-icon">{{ icon("plate") }}</span>
+                <div><strong>{{ stats.meals }}<span>+</span></strong><small>Estimated meals supported</small></div>
+            </div>
+            <div class="impact-stat">
+                <span class="stat-icon">{{ icon("leaf") }}</span>
+                <div><strong>{{ stats.distributed }} <em>kg</em></strong><small>Food waste reduced</small></div>
+            </div>
+        </div>
+    </section>
+    <section class="section how-section"><div class="container"><div class="section-heading centered"><span class="eyebrow">A SIMPLE WAY TO MAKE A DIFFERENCE</span><h2>From extra food to full plates.</h2><p>Four easy steps. One meaningful impact.</p></div><div class="steps-grid">{% for num, symbol, title, text in [('01','users','Join the community','Sign up as a food donor or a charity. It only takes a moment.'),('02','box','Share what you have','List your surplus food, quantity, and a convenient pickup time.'),('03','spark','Let AI make the match','Our smart system finds the right nearby charity for your food.'),('04','truck','Deliver a little hope','Coordinate collection and see your kindness make a difference.')] %}<div class="step"><div class="step-top"><span class="step-icon">{{ icon(symbol) }}</span><span class="step-number">{{ num }}</span></div><h3>{{ title }}</h3><p>{{ text }}</p></div>{% endfor %}</div></div></section>
+    <section class="section available-section"><div class="container"><div class="section-heading split-heading"><div><span class="eyebrow">GOOD FOOD, READY TO BE SHARED</span><h2>A little surplus. A lot of possibility.</h2><p>Fresh opportunities to feed your community.</p></div><a class="text-link" href="{{ url_for('main.find_food') }}">Explore all donations {{ icon("arrow") }}</a></div><div class="food-grid">{% for d in donations %}{{ food_card(d) }}{% else %}<div class="empty-state"><h3>The next good meal starts with you.</h3><a href="{{ url_for('donations.create') }}" class="btn btn-primary">Share a donation</a></div>{% endfor %}</div><div class="live-note"><span></span> Live listings from our community <span class="note-divider">·</span> Freshly updated, thoughtfully matched</div></div></section>
+    <section class="section benefit-section"><div class="container benefits-layout"><div class="benefit-intro"><span class="eyebrow">BETTER CONNECTIONS. BIGGER IMPACT.</span><h2>Kindness is human.<br>The matching is smart.</h2><p>We take the guesswork out of giving, so your good food reaches the people who need it — while it’s still good.</p><a class="text-link" href="{{ url_for('main.how_it_works') }}">Meet your matching assistant {{ icon("arrow") }}</a><div class="explainable-note">{{ icon("shield") }} Transparent recommendations. Real-world impact.</div></div><div class="benefit-grid">{% for symbol,title,text in [('pin','Closer is better','Location-aware matching means shorter journeys and fresher food.'),('spark','The right fit, every time','Food type, quantity, and charity needs guide every recommendation.'),('clock','Every minute matters','Urgency and expiry windows help prioritize time-sensitive donations.'),('chart','Impact you can see','Follow each donation and see the difference your community makes.')] %}<div class="benefit-card"><span class="icon-tile">{{ icon(symbol) }}</span><h3>{{ title }}</h3><p>{{ text }}</p></div>{% endfor %}</div></div></section>
+    <section class="container sdg-banner">
+        <div class="sdg-icon">
+            <span>2 <small>ZERO
+                <br>
+                HUNGER</small></span>{{ icon("plate") }}
+        </div>
+        <div>
+            <span class="eyebrow">LOCAL ACTION. GLOBAL PURPOSE.</span>
+            <h2>A world where no one goes hungry.</h2>
+            <p>
+                Every food donation brings us closer to UN Sustainable Development
+                <br class="desktop-only">
+                Goal 2: Zero Hunger. Let’s build that future, together.
+            </p>
+        </div>
+        <a class="btn btn-white" href="{{ url_for('main.about') }}">Our mission {{ icon("arrow") }}</a>
+        <div class="sdg-watermark" aria-hidden="true">{{ icon("globe") }}</div>
+    </section>
+    <section class="section join-section">
+        <div class="container centered">
+            <span class="eyebrow">THERE’S A PLACE FOR YOU AT THE TABLE</span>
+            <h2>Your surplus could be someone’s next meal.</h2>
+            <p>Whether you have food to give or a community to feed, you belong here.</p>
+            <a class="btn btn-primary btn-large"
+               href="{{ url_for('auth.register') }}">Join the movement {{ icon("arrow") }}</a><span class="join-caption">Free to join. Simple to use. Meaningful by nature.</span>
+        </div>
+    </section>
+{% endblock %}

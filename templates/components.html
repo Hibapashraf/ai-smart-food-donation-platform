@@ -1,0 +1,24 @@
+{% macro icon(name, cls='') %}
+    <svg class="icon {{ cls }}" aria-hidden="true">
+        <use href="#i-{{ name }}" />
+    </svg>
+{% endmacro %}
+{% macro csrf() %}
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+{% endmacro %}
+{% macro food_card(d, distance=none, score=none) %}
+    <article class="food-card">
+        <a class="food-image"
+           href="{{ url_for('donations.detail', donation_id=d.id) }}"><img src="{{ url_for('static', filename='images/' + d.image) }}"
+     alt="{{ d.category }} donation"
+     loading="lazy"><span class="tag category-tag">{{ icon("leaf") }} {{ d.category }}</span>{% if d.urgency == "Urgent" %}<span class="tag urgent-tag">{{ icon("clock") }} Urgent pickup</span>{% endif %}</a>
+        <div class="food-card-body"><div class="card-eyebrow">{{ icon("store") }} {{ d.donor.organization }}{% if score %}<span class="match-mini">{{ score|round|int }}% match</span>{% endif %}</div>
+            <h3><a href="{{ url_for('donations.detail', donation_id=d.id) }}">{{ d.name }}</a></h3>
+            <p class="location-line">{{ icon("pin") }} {{ d.location }}{% if distance is not none %} · {{ distance }} km{% endif %}</p>
+            <div class="food-meta"><span>{{ icon("box") }} <strong>{{ '%g'|format(d.quantity) }} {{ d.unit }}</strong> available</span><span>{{ icon("clock") }} {{ d.hours_left }}h left</span></div>
+            <div class="food-card-bottom"><span class="diet-label"><i></i> {{ 'Vegetarian' if d.vegetarian else 'Non-vegetarian' }}</span><a href="{{ url_for('donations.detail', donation_id=d.id) }}">View details {{ icon("arrow") }}</a></div>
+        </div>
+    </article>
+{% endmacro %}
+{% macro progress(d) %}<div class="status-progress" aria-label="Donation status: {{ d.status }}">{% for s in statuses %}<div class="status-step {{ 'done' if statuses.index(s) <= statuses.index(d.status) else '' }}"><span>{{ icon("check") if statuses.index(s) < statuses.index(d.status) else loop.index }}</span><small>{{ s }}</small></div>{% endfor %}</div>{% endmacro %}
+{% macro empty(title='Nothing here just yet', text='Your next small act can make a big difference.', link=none, label='Explore available food') %}<div class="empty-state"><span class="icon-tile">{{ icon("box") }}</span><h3>{{ title }}</h3><p>{{ text }}</p>{% if link %}<a class="btn btn-primary" href="{{ link }}">{{ label }} {{ icon("arrow") }}</a>{% endif %}</div>{% endmacro %}
