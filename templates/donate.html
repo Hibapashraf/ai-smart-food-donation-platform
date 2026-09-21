@@ -1,0 +1,97 @@
+{% extends "base.html" %}{% from 'components.html' import icon, csrf with context %}{% block title %}Donate Food · FoodConnect AI{% endblock %}
+{% block content %}<section class="page-heading"><div class="container"><span class="eyebrow">YOUR EXTRA IS SOMEONE’S EVERYTHING</span><h1>Share food. Spread hope.</h1><p>A few details are all it takes to connect your surplus with the right community.</p></div></section>
+<section class="container page-body form-layout">
+    <form method="post" class="panel">
+        {{ csrf() }}
+        <h2>Tell us what’s on the table.</h2>
+        <p class="panel-subtitle">Fields marked * are required. Only share food that is safe to eat.</p>
+        <div class="form-section">
+            <h3><span>1</span> Food details</h3>
+            <div class="form-grid">
+                <div class="form-field full-width">
+                    <label for="name">Food name <span>*</span></label><input id="name"
+       name="name"
+       value="{{ request.form.get('name', '') }}"
+       maxlength="160"
+       placeholder="e.g. Fresh seasonal vegetables"
+       required>
+                </div>
+                <div class="form-field"><label for="category">Food category <span>*</span></label><select id="category" name="category" required><option value="">Select category</option>{% for c in categories %}<option {{ 'selected' if request.form.get("category") == c }}>{{ c }}</option>{% endfor %}</select></div><div class="form-field"><label for="diet">Dietary type <span>*</span></label><select id="diet" name="diet"><option value="vegetarian">Vegetarian</option><option value="non-vegetarian"
+        {{ 'selected' if request.form.get("diet") == 'non-vegetarian' }}>Non-vegetarian</option></select></div>
+                <div class="form-field"><label for="quantity">Quantity <span>*</span></label><input id="quantity"
+       name="quantity"
+       type="number"
+       min="0.01"
+       max="100000"
+       step="0.01"
+       value="{{ request.form.get('quantity', '') }}"
+       placeholder="e.g. 25"
+       required></div><div class="form-field"><label for="unit">Unit <span>*</span></label><select id="unit" name="unit">{% for u in units %}<option {{ 'selected' if request.form.get("unit") == u }}>{{ u }}</option>{% endfor %}</select></div>
+                <div class="form-field full-width"><label for="condition">Food condition <span>*</span></label><select id="condition" name="condition">{% for c in ['Fresh','Sealed / packaged','Freshly cooked'] %}<option {{ 'selected' if request.form.get("condition") == c }}>{{ c }}</option>{% endfor %}</select></div></div></div>
+        <div class="form-section"><h3><span>2</span> Timing & freshness</h3><div class="form-grid"><div class="form-field"><label for="prepared_at">Preparation / packed at (UTC) <span>*</span></label><input id="prepared_at"
+       name="prepared_at"
+       type="datetime-local"
+       value="{{ request.form.get('prepared_at', '') }}"
+       required
+       data-date="past"></div><div class="form-field"><label for="expires_at">Expiry date & time (UTC) <span>*</span></label><input id="expires_at"
+       name="expires_at"
+       type="datetime-local"
+       value="{{ request.form.get('expires_at', '') }}"
+       required
+       data-date="future"></div><div class="form-field full-width"><label for="urgency">Pickup urgency <span>*</span></label><select id="urgency" name="urgency">{% for u in ['Normal','High','Urgent'] %}<option {{ 'selected' if request.form.get("urgency") == u }}>{{ u }}</option>{% endfor %}</select><small>We prioritize time-sensitive food. All dates on the platform are in UTC.</small></div></div></div>
+        <div class="form-section">
+            <h3><span>3</span> Pickup details</h3>
+            <div class="form-grid">
+                <div class="form-field full-width">
+                    <label for="location">Pickup address <span>*</span></label><input id="location"
+       name="location"
+       maxlength="255"
+       value="{{ request.form.get('location',profile.location) }}"
+       required>
+                </div>
+                <div class="form-field">
+                    <label for="latitude">Latitude <span>*</span></label><input id="latitude"
+       name="latitude"
+       type="number"
+       step="any"
+       min="-90"
+       max="90"
+       value="{{ request.form.get('latitude',profile.latitude) }}"
+       required>
+                </div>
+                <div class="form-field">
+                    <label for="longitude">Longitude <span>*</span></label><input id="longitude"
+       name="longitude"
+       type="number"
+       step="any"
+       min="-180"
+       max="180"
+       value="{{ request.form.get('longitude',profile.longitude) }}"
+       required>
+                </div>
+                <div class="form-field full-width">
+                    <button type="button"
+                            class="btn btn-outline geo-button"
+                            data-geolocate>{{ icon("pin") }} Use my location</button>
+                    <span class="geo-message" role="status"></span>
+                </div>
+                <div class="form-field full-width">
+                    <label for="contact">Contact number / email <span>*</span></label><input id="contact"
+       name="contact"
+       value="{{ request.form.get('contact',profile.phone) }}"
+       maxlength="80"
+       required><small>Shown to the organization after it accepts your donation.</small>
+                </div>
+                <div class="form-field full-width">
+                    <label for="notes">Additional notes</label><textarea id="notes"
+          name="notes"
+          maxlength="2000"
+          placeholder="Allergens, storage instructions, packaging, or helpful pickup directions...">{{ request.form.get('notes','') }}</textarea>
+                </div>
+            </div>
+        </div>
+        <div class="form-actions">
+            <a class="btn btn-outline" href="{{ url_for('main.dashboard') }}">Cancel</a><button class="btn btn-primary">{{ icon("spark") }} Publish & find matches {{ icon("arrow") }}</button>
+        </div>
+    </form>
+    <aside><div class="help-panel"><span class="icon-tile">{{ icon("spark") }}</span><h3>A smarter way to share.</h3><p>Once you publish, our matching engine looks for the best organizations based on:</p><ul><li>{{ icon("pin") }} Distance and pickup location</li><li>{{ icon("leaf") }} Food type and dietary needs</li><li>{{ icon("box") }} Quantity and community requirements</li><li>{{ icon("clock") }} Urgency and time until expiry</li></ul><p>Every match comes with a score and a clear explanation. No guesswork, just good connections.</p></div><div class="hint-card"><strong>{{ icon("shield") }} A note on food safety</strong>Please ensure food is fresh, safely stored, and within its expiry date. Include any allergen information in your notes. Recommendations are not a food safety certification.</div></aside></section>{% endblock %}

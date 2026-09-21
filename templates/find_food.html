@@ -1,0 +1,20 @@
+{% extends "base.html" %}{% from 'components.html' import icon, food_card, empty with context %}
+{% block title %}Find Food · FoodConnect AI{% endblock %}{% block content %}
+<section class="page-heading">
+    <div class="container">
+        <span class="eyebrow">GOOD FOOD. RIGHT HERE.</span>
+        <h1>Find food. Feed possibility.</h1>
+        <p>Discover surplus food from generous neighbors, ready for your community.</p>
+    </div>
+</section>
+<section class="container page-body"><form class="filter-bar" method="get"><div class="search-field">{{ icon("search") }}<input aria-label="Search donations"
+       type="search"
+       name="q"
+       value="{{ request.args.get('q', '') }}"
+       placeholder="Search for fresh food, meals, and more..."></div><select name="category" aria-label="Food category"><option value="">All categories</option>{% for c in categories %}<option {{ 'selected' if request.args.get("category") == c }}>{{ c }}</option>{% endfor %}</select><select name="urgency" aria-label="Urgency"><option value="">Any urgency</option>{% for u in ['Normal','High','Urgent'] %}<option {{ 'selected' if request.args.get("urgency") == u }}>{{ u }}</option>{% endfor %}</select><select name="sort" aria-label="Sort donations">{% for value,label in [('newest','Newest first'),('urgency','Most urgent'),('expiry','Expiring soon'),('distance','Nearest first')] %}<option value="{{ value }}"
+        {{ 'selected' if request.args.get('sort', 'newest') == value }}>{{ label }}</option>{% endfor %}</select><button class="btn btn-primary">Search {{ icon("arrow") }}</button></form>
+    <div class="results-line"><span><strong>{{ donations|length }}</strong> available donation{{ '' if donations|length == 1 else 's' }}{% if request.args.get("sort") == "distance" and not g.user %} · Sign in to sort by your location{% endif %}</span><div class="view-toggle"><a class="active" href="{{ url_for('main.find_food') }}">{{ icon("box") }} Food donations</a><a href="{{ url_for('main.charities') }}">{{ icon("users") }} Charities</a></div></div>
+    <div class="food-grid catalog-grid">{% for d in donations %}{{ food_card(d, distances.get(d.id)) }}{% else %}{{ empty('No donations found', 'Try another search or check back soon. Good things are on the way.', url_for('main.find_food'), 'Clear filters') }}{% endfor %}</div>
+    <div class="hint-card"><strong>{{ icon("shield") }} Good food, shared responsibly.</strong>Images illustrate food categories, not individual donations. Please confirm food condition, allergens and handling with the donor before collection. Only registered charities can accept donations.</div>
+</section>
+{% endblock %}

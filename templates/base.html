@@ -1,0 +1,134 @@
+{% from 'components.html' import icon, csrf with context %}
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description"
+      content="FoodConnect AI connects surplus food with communities that need it. Donate food, find local charities, and make every meal matter."><title>{% block title %}FoodConnect AI · Every meal matters{% endblock %}</title><link rel="icon"
+      href="{{ url_for('static', filename='images/favicon.svg') }}"
+      type="image/svg+xml"><link rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}">{% block head %}{% endblock %}</head><body>
+<svg xmlns="http://www.w3.org/2000/svg"
+     class="svg-defs"
+     aria-hidden="true">
+    <defs>
+    <symbol id="i-leaf" viewBox="0 0 24 24">
+    <path d="M20 3c-1 10-2 15-9 15-4 0-7-4-5-8 2-5 9-3 14-7Z" />
+    <path d="M4 21 15 10" />
+    </symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24">
+    <path d="M4 12h15m-6-6 6 6-6 6" />
+    </symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24">
+    <path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z" />
+    <circle cx="12" cy="10" r="2.5" /></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24">
+    <path d="M20.5 5.5a5.5 5.5 0 0 0-8.5 1 5.5 5.5 0 0 0-8.5-1c-6 6 8.5 15 8.5 15s14.5-9 8.5-15Z" />
+    </symbol>
+    <symbol id="i-box" viewBox="0 0 24 24">
+    <path d="m3 7 9-5 9 5v11l-9 4-9-4V7Zm0 0 9 5 9-5M12 12v10M7 4l10 5" />
+    </symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4" />
+    <path d="M2 21v-3a7 7 0 0 1 14 0v3M16 3a4 4 0 0 1 0 8m3 3a6 6 0 0 1 3 5v2" />
+    </symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" />
+    <path d="M12 6v6l4 2" />
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24">
+    <path d="m5 12 4 4L19 6" />
+    </symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24">
+    <path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3ZM20 2v4m-2-2h4" />
+    </symbol>
+    <symbol id="i-store" viewBox="0 0 24 24">
+    <path d="m3 9 2-6h14l2 6M3 9v2a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0V9M5 14v7h14v-7M10 21v-6h4v6M3 9h18" />
+    </symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="7.5" />
+    <path d="m16 16 5 5" />
+    </symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24">
+    <path d="M12 5v14M5 12h14" />
+    </symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24">
+    <path d="M4 3v18h17M8 16v-5m5 5V7m5 9V4" />
+    </symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24">
+    <path d="M2 4h12v13H2V4Zm12 5h4l4 4v4h-8" />
+    <circle cx="6" cy="18" r="3" /><circle cx="18" cy="18" r="3" /></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24">
+    <path d="m12 2 9 4v6c0 5-9 10-9 10S3 17 3 12V6l9-4Z" />
+    <path d="m8 11 3 3 5-5" />
+    </symbol>
+    <symbol id="i-plate" viewBox="0 0 24 24"><circle cx="13" cy="12" r="6" />
+    <path d="M2 3v6h3V3M3.5 9v12M22 3v18" />
+    </symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24">
+    <path d="M4 6h16M4 12h16M4 18h16" />
+    </symbol>
+    <symbol id="i-close" viewBox="0 0 24 24">
+    <path d="m6 6 12 12M6 18 18 6" />
+    </symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" />
+    <path d="m3 6 9 7 9-7" />
+    </symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><ellipse cx="12" cy="12" rx="4" ry="9" />
+    <path d="M3 12h18" />
+    </symbol>
+    </defs>
+</svg>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+    <div class="container nav-wrap">
+        <a class="brand" href="{{ url_for('main.home') }}"><span class="brand-mark">{{ icon("leaf") }}</span><span>FoodConnect<span class="ai-text">AI</span><small>GOOD FOOD. GREATER GOOD.</small></span></a><button class="menu-toggle"
+        aria-label="Toggle navigation"
+        aria-expanded="false">{{ icon("menu") }}</button>
+        <nav class="main-nav" aria-label="Main navigation">
+            <a class="{{ 'active' if request.endpoint == 'main.home' }}"
+               href="{{ url_for('main.home') }}">Home</a><a class="{{ 'active' if request.endpoint == 'main.how_it_works' }}"
+   href="{{ url_for('main.how_it_works') }}">How It Works</a><a class="{{ 'active' if request.endpoint == 'donations.create' }}"
+   href="{{ url_for('donations.create') }}">Donate Food</a><a class="{{ 'active' if request.endpoint in ['main.find_food', 'main.charities'] }}"
+   href="{{ url_for('main.find_food') }}">Find Food</a><a class="{{ 'active' if request.endpoint == 'main.dashboard' }}"
+   href="{{ url_for('main.dashboard') }}">Dashboard</a><a class="{{ 'active' if request.endpoint == 'main.about' }}"
+   href="{{ url_for('main.about') }}">About</a>
+            <div class="nav-auth">{% if g.user %}<a class="user-pill" href="{{ url_for('auth.profile') }}"><span>{{ g.user.name[0] }}</span>{{ g.user.name.split()[0] }}</a><form action="{{ url_for('auth.logout') }}" method="post">{{ csrf() }}<button class="btn btn-outline btn-small">Log out</button></form>{% else %}<a class="login-link" href="{{ url_for('auth.login') }}">Log in</a><a class="btn btn-primary btn-small"
+   href="{{ url_for('auth.register') }}">Get started {{ icon("arrow") }}</a>{% endif %}</div></nav></div></header>
+        {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<div class="container alerts" role="status" aria-live="polite">{% for category, message in messages %}<div class="alert alert-{{ category }}">{{ icon("check") if category == 'success' else icon('spark') }}<span>{{ message }}</span><button type="button" aria-label="Dismiss notification" class="dismiss-alert">{{ icon("close") }}</button></div>{% endfor %}</div>{% endif %}{% endwith %}
+        <main id="main">
+            {% block content %}{% endblock %}
+        </main>
+        <footer class="site-footer">
+            <div class="container">
+                <div class="footer-top">
+                    <div class="footer-brand">
+                        <a class="brand" href="{{ url_for('main.home') }}"><span class="brand-mark">{{ icon("leaf") }}</span><span>FoodConnect<span class="ai-text">AI</span></span></a>
+                        <p>
+                            Less waste. More possibility.
+                            <br>
+                            Connecting communities, one meal at a time.
+                        </p>
+                        <span class="footer-location">{{ icon("pin") }} Built for a kinder, greener world.</span>
+                    </div>
+                    <div>
+                        <h4>Explore</h4>
+                        <a href="{{ url_for('main.how_it_works') }}">How it works</a><a href="{{ url_for('main.find_food') }}">Find food</a><a href="{{ url_for('main.charities') }}">Our community</a>
+                    </div>
+                    <div>
+                        <h4>Make a difference</h4>
+                        <a href="{{ url_for('donations.create') }}">Donate food</a><a href="{{ url_for('auth.register', role='charity') }}">Join as a charity</a><a href="{{ url_for('main.about') }}">Our mission</a>
+                    </div>
+                    <div class="footer-sdg">
+                        <span class="sdg-mini">2</span>
+                        <div>
+                            <strong>ZERO HUNGER</strong>
+                            <p>
+                                Working toward the
+                                <br>
+                                UN Sustainable Development Goals.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom"><span>© {{ current_year }} FoodConnect AI. Every meal matters.</span><span>Made with purpose. Powered by community. {{ icon("heart") }}</span></div>
+            </div>
+        </footer>
+        <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+        {% block scripts %}{% endblock %}
+        </body>
+        </html>
